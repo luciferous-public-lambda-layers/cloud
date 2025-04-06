@@ -37,7 +37,7 @@ module "slack_error_notifier_02" {
   source = "../events_slack_webhook_destination"
 
   slack_incoming_webhook_url = var.slack_incoming_webhook_error_notifier_02
-  api_destination_name       = "error_notifier_01"
+  api_destination_name       = "error_notifier_02"
 
   event_bus_name             = aws_cloudwatch_event_bus.slack_error_notifier.name
   iam_role_arn               = aws_iam_role.event_bridge_invoke_api_destination.arn
