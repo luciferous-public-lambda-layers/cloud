@@ -3,7 +3,7 @@
   <component name="Black">
     <option name="sdkName" value="pyenv global" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="pyenv global" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.13 virtualenv at ~/space/projects/luciferous-public-layers/01_repos/cloud/.venv" project-jdk-type="Python SDK" />
   <component name="PyVirtualEnvTerminalCustomizer">
     <option name="virtualEnvActivate" value="false" />
   </component>

@@ -22,7 +22,7 @@ aws-cloudwatch-logs-url = "1.0.3"
 ruff = "*"
 pytest = "*"
 freezegun = "*"
-boto3-stubs = {version = "1.37.28", extras = ["events", "dynamodb"]}
+boto3-stubs = {version = "1.37.28", extras = ["events", "dynamodb", "ssm"]}
 
 [tool.pytest.ini_options]
 filterwarnings = [

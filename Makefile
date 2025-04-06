@@ -31,8 +31,8 @@ fmt-terraform-module-lambda-function-basic:
 	terraform fmt
 
 fmt-python:
-	poetry run ruff check --select I --fix src/ tests/
-	poetry run ruff format src/ tests/
+	poetry run ruff check --select I --fix src/ tests/ scripts/
+	poetry run ruff format src/ tests/ scripts/
 
 lint: \
 	lint-terraform \
@@ -81,6 +81,9 @@ compose-up:
 compose-down:
 	docker compose down
 
+get-outputs:
+	poetry run python scripts/get_outputs.py
+
 .PHONY: \
 	format \
 	fmt-terraform \
@@ -94,4 +97,5 @@ compose-down:
 	lint-python \
 	test-unit \
 	compose-up \
-	compose-down
+	compose-down \
+	get-outputs

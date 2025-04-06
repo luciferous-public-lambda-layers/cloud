@@ -5,6 +5,7 @@ on:
       - ".vscode/**"
       - ".idea/**"
       - ".gitignore"
+      - "scripts/**/*"
     branches:
       - "*"
     tags:
