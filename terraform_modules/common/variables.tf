@@ -13,6 +13,11 @@ variable "layer_arn_base" {
   nullable = false
 }
 
+variable "prefix_output_ssm" {
+  type     = string
+  nullable = false
+}
+
 variable "slack_incoming_webhook_error_notifier_01" {
   type      = string
   nullable  = false

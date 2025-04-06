@@ -44,7 +44,8 @@ module "common" {
   system_name = var.SYSTEM_NAME
   region      = var.REGION
 
-  layer_arn_base = var.LAYER_ARN_BASE
+  layer_arn_base    = var.LAYER_ARN_BASE
+  prefix_output_ssm = "/Output"
 
   slack_incoming_webhook_error_notifier_01 = var.SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_01
   slack_incoming_webhook_error_notifier_02 = var.SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_02
@@ -80,5 +81,4 @@ variable "SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_02" {
   type      = string
   nullable  = false
   sensitive = true
-
 }
