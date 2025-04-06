@@ -1,5 +1,11 @@
 on:
   push:
+    paths-ignore:
+      - "**/*.md"
+      - ".vscode/**"
+      - ".idea/**"
+      - ".gitignore"
+      - "terraform_modules/**"
     branches:
 
 jobs:
