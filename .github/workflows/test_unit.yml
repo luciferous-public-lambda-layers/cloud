@@ -6,6 +6,7 @@ on:
       - ".idea/**/*"
       - ".gitignore"
       - "terraform_modules/**/*"
+    branches:
 
 jobs:
   test:
