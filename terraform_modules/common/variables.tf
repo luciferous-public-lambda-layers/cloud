@@ -18,3 +18,9 @@ variable "slack_incoming_webhook_error_notifier_01" {
   nullable  = false
   sensitive = true
 }
+
+variable "slack_incoming_webhook_error_notifier_02" {
+  type      = string
+  nullable  = false
+  sensitive = true
+}

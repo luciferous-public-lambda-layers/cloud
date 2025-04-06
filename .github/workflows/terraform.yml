@@ -15,24 +15,36 @@ permissions:
   contents: read
 
 env:
-  TF_VAR_SYSTEM_NAME: ${{ vars.SYSTEM_NAME }}
-  TF_VAR_REGION: ${{ vars.REGION }}
-  TF_VAR_LAYER_ARN_BASE: ${{ vars.LAYER_ARN_BASE }}
+  TF_VAR_SYSTEM_NAME: public-layers-cloud
+  TF_VAR_REGION: ${{ vars.BASE_AWS_REGION }}
+  TF_VAR_LAYER_ARN_BASE: ${{ secrets.ARN_LAYER_BASE }}
   TF_VAR_SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_01: ${{ secrets.SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_01 }}
+  TF_VAR_SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_02: ${{ secrets.SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_02 }}
 
 jobs:
   terraform:
     runs-on: ubuntu-22.04
     steps:
+      - name: Add Mask
+        run: |
+          echo "::add-mask::${{ secrets.ACCOUNT_ID }}"
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.8
+          terraform_version: 1.11.3
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.ROLE_ARN_GITHUB_ACTION }}
-          aws-region: ${{ vars.REGION }}
-      - run: terraform init
+          role-to-assume: ${{ secrets.ARN_IAM_ROLE_FOR_TERRAFORM }}
+          aws-region: ${{ vars.BASE_AWS_REGION }}
+      - run: |
+          terraform init \
+            -backend-config="bucket=$BACKEND_S3_BUCKET" \
+            -backend-config="key=$BACKEND_S3_KEY" \
+            -backend-config="region=$BACKEND_REGION"
+        env:
+          BACKEND_S3_BUCKET: ${{ secrets.BUCKET_NAME_STATE }}
+          BACKEND_S3_KEY: cloud/state.json
+          BACKEND_REGION: ${{ vars.BASE_AWS_REGION }}
       - name: terraform plan
         run: terraform plan
         if: ${{ github.ref_type == 'branch' }}
