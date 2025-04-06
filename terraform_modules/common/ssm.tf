@@ -3,13 +3,13 @@
 # ================================================================
 
 resource "aws_ssm_parameter" "output_table_layers" {
-  name  = "${var.prefix_output_ssm}/TablesLayers"
+  name  = "${var.prefix_output_ssm}/Tables/Layers"
   type  = "String"
   value = aws_dynamodb_table.layers.name
 }
 
 resource "aws_ssm_parameter" "output_table_layers_dev" {
-  name  = "${var.prefix_output_ssm}/TablesLayersDev"
+  name  = "${var.prefix_output_ssm}/Tables/LayersDev"
   type  = "String"
   value = aws_dynamodb_table.layers_dev.name
 }
