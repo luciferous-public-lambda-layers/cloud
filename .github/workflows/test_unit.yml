@@ -2,10 +2,10 @@ on:
   push:
     paths-ignore:
       - "**/*.md"
-      - ".vscode/**"
-      - ".idea/**"
+      - ".vscode/**/*"
+      - ".idea/**/*"
       - ".gitignore"
-      - "terraform_modules/**"
+      - "terraform_modules/**/*"
     branches:
 
 jobs:
