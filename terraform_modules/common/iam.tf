@@ -84,7 +84,7 @@ resource "aws_iam_policy" "event_bridge_put_events" {
 data "aws_iam_policy_document" "policy_event_bridge_invoke_api_destination" {
   policy_id = "policy_event_bridge_invoke_api_destination"
   statement {
-    sid       = "policy_event_bridge_invoke_api_destination"
+    sid       = "PolicyEventBridgeInvokeApiDestination"
     effect    = local.iam.effect.allow
     actions   = ["events:InvokeApiDestination"]
     resources = ["*"]
