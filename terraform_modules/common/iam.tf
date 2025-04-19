@@ -173,3 +173,19 @@ resource "aws_iam_role_policy_attachment" "cognito_unauthenticated" {
   policy_arn = each.value
   role       = aws_iam_role.cognito_unauthenticated.name
 }
+
+# ================================================================
+# Role Lambda Insert History
+# ================================================================
+
+resource "aws_iam_role" "lambda_insert_history" {
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy_lambda.json
+}
+resource "aws_iam_role_policy_attachment" "lambda_insert_history" {
+  for_each = {
+    a = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+    b = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+  }
+  policy_arn = each.value
+  role       = aws_iam_role.lambda_insert_history.name
+}

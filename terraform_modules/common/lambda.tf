@@ -51,3 +51,67 @@ resource "aws_lambda_permission" "error_processor" {
   function_name = module.lambda_error_processor.function_arn
   principal     = "logs.amazonaws.com"
 }
+
+# ================================================================
+# Lambda Insert History
+# ================================================================
+
+module "lambda_insert_history" {
+  source = "../lambda_function"
+
+  identifier = "insert_history"
+  handler    = "handlers/insert_history/insert_history.handler"
+  role_arn   = aws_iam_role.lambda_insert_history.arn
+  layers     = [var.layer_arn_base]
+
+  environment_variables = {
+    TABLE_NAME : aws_dynamodb_table.history.name
+  }
+
+  subscription_destination_lambda_arn = module.lambda_error_processor.function_arn
+
+  s3_bucket_deploy_package = aws_s3_object.lambda_deploy_package.bucket
+  s3_key_deploy_package    = aws_s3_object.lambda_deploy_package.key
+  source_code_hash         = data.archive_file.lambda_deploy_package.output_base64sha256
+  system_name              = var.system_name
+  runtime                  = local.lambda.runtime
+  region                   = var.region
+}
+
+resource "aws_lambda_event_source_mapping" "lambda_insert_history" {
+  function_name     = module.lambda_insert_history.function_alias_arn
+  event_source_arn  = aws_dynamodb_table.history.stream_arn
+  starting_position = "TRIM_HORIZON"
+}
+
+# ================================================================
+# Lambda Insert History Dev
+# ================================================================
+
+module "lambda_insert_history_dev" {
+  source = "../lambda_function"
+
+  identifier = "insert_history_dev"
+  handler    = "handlers/insert_history/insert_history.handler"
+  role_arn   = aws_iam_role.lambda_insert_history.arn
+  layers     = [var.layer_arn_base]
+
+  environment_variables = {
+    TABLE_NAME : aws_dynamodb_table.history_dev.name
+  }
+
+  subscription_destination_lambda_arn = module.lambda_error_processor.function_arn
+
+  s3_bucket_deploy_package = aws_s3_object.lambda_deploy_package.bucket
+  s3_key_deploy_package    = aws_s3_object.lambda_deploy_package.key
+  source_code_hash         = data.archive_file.lambda_deploy_package.output_base64sha256
+  system_name              = var.system_name
+  runtime                  = local.lambda.runtime
+  region                   = var.region
+}
+
+resource "aws_lambda_event_source_mapping" "lambda_insert_history_dev" {
+  function_name     = module.lambda_insert_history_dev.function_alias_arn
+  event_source_arn  = aws_dynamodb_table.history_dev.stream_arn
+  starting_position = "TRIM_HORIZON"
+}
