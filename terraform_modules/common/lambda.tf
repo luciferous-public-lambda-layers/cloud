@@ -80,7 +80,7 @@ module "lambda_insert_history" {
 
 resource "aws_lambda_event_source_mapping" "lambda_insert_history" {
   function_name     = module.lambda_insert_history.function_alias_arn
-  event_source_arn  = aws_dynamodb_table.history.stream_arn
+  event_source_arn  = aws_dynamodb_table.layers.stream_arn
   starting_position = "TRIM_HORIZON"
 }
 
@@ -112,6 +112,6 @@ module "lambda_insert_history_dev" {
 
 resource "aws_lambda_event_source_mapping" "lambda_insert_history_dev" {
   function_name     = module.lambda_insert_history_dev.function_alias_arn
-  event_source_arn  = aws_dynamodb_table.history_dev.stream_arn
+  event_source_arn  = aws_dynamodb_table.layers_dev.stream_arn
   starting_position = "TRIM_HORIZON"
 }
