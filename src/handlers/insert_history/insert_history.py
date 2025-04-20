@@ -46,7 +46,6 @@ def main(*, event: DynamoDBStreamEvent, resource_ddb: DynamoDBServiceResource):
 
 @logging_function(logger)
 def process_record(*, record: DynamoDBRecord, table: Table):
-    logger.debug("event_name", data={"event_name": record.event_name.name})
     if record.event_name == DynamoDBRecordEventName.INSERT:
         item = create_item_for_insert(record=record)
     elif record.event_name == DynamoDBRecordEventName.MODIFY:
@@ -55,7 +54,6 @@ def process_record(*, record: DynamoDBRecord, table: Table):
         item = create_item_for_remove(record=record)
     else:
         raise RuntimeError(f"想定外のeventName ({record.event_name})")
-    logger.debug("item", data={"item": item})
     table.put_item(Item=item)
 
 
