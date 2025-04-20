@@ -31,7 +31,6 @@ variable "role_arn" {
 variable "runtime" {
   type     = string
   nullable = false
-  default  = "python3.13"
 }
 
 variable "handler" {

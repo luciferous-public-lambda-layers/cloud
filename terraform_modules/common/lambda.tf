@@ -1,6 +1,6 @@
 locals {
   lambda = {
-    runtime = "python3.12"
+    runtime = "python3.13"
   }
 }
 
