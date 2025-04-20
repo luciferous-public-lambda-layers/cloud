@@ -79,8 +79,10 @@ def parse_identifier(*, record: DynamoDBRecord) -> str:
 def create_item_for_insert(*, record: DynamoDBRecord) -> dict:
     return {
         "identifier": parse_identifier(record=record),
-        "createdAt": datetime.now(jst).isoformat(),
-        "approximateCreationDateTime": parse_approximate_creation_date_time(record=record),
+        "updatedAt": datetime.now(jst).isoformat(),
+        "approximateCreationDateTime": parse_approximate_creation_date_time(
+            record=record
+        ),
         "eventName": parse_event_name(record=record),
         "newImage": record.dynamodb.new_image,
     }
@@ -90,7 +92,10 @@ def create_item_for_insert(*, record: DynamoDBRecord) -> dict:
 def create_item_for_modify(*, record: DynamoDBRecord) -> dict:
     return {
         "identifier": parse_identifier(record=record),
-        "updatedAt": parse_approximate_creation_date_time(record=record),
+        "updatedAt": datetime.now(jst).isoformat(),
+        "approximateCreationDateTime": parse_approximate_creation_date_time(
+            record=record
+        ),
         "eventName": parse_event_name(record=record),
         "newImage": record.dynamodb.new_image,
         "oldImage": record.dynamodb.old_image,
@@ -101,7 +106,10 @@ def create_item_for_modify(*, record: DynamoDBRecord) -> dict:
 def create_item_for_remove(*, record: DynamoDBRecord) -> dict:
     return {
         "identifier": parse_identifier(record=record),
-        "updatedAt": parse_approximate_creation_date_time(record=record),
+        "updatedAt": datetime.now(jst).isoformat(),
+        "approximateCreationDateTime": parse_approximate_creation_date_time(
+            record=record
+        ),
         "eventName": parse_event_name(record=record),
         "oldImage": record.dynamodb.old_image,
     }
