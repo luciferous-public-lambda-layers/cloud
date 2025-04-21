@@ -19,3 +19,15 @@ resource "aws_ssm_parameter" "output_identity_pool" {
   type  = "String"
   value = aws_cognito_identity_pool.identity.id
 }
+
+resource "aws_ssm_parameter" "output_role_arn_github_actions_publisher" {
+  name  = "${var.prefix_output_ssm}/Publisher/ArnRolePublisher"
+  type  = "String"
+  value = aws_iam_role.github_actions_publisher.arn
+}
+
+resource "aws_ssm_parameter" "output_role_arn_cloudformation" {
+  name  = "${var.prefix_output_ssm}/Publisher/ArnRoleCloudFormation"
+  type  = "String"
+  value = aws_iam_role.cloud_formation.arn
+}

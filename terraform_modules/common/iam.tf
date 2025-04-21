@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "5.81.0"
+    }
+  }
+}
 locals {
   iam = {
     effect = {
@@ -55,6 +63,37 @@ data "aws_iam_policy_document" "assume_role_policy_cognito" {
       test     = "ForAnyValue:StringLike"
       values   = ["unauthenticated"]
       variable = "cognito-identity.amazonaws.com:amr"
+    }
+  }
+}
+
+data "aws_iam_policy_document" "assume_role_policy_github" {
+  policy_id = "assume_role_policy_github"
+  statement {
+    sid     = "AssumeRolePolicyGithub"
+    effect  = local.iam.effect.allow
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    principals {
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"]
+      type        = "Federated"
+    }
+    condition {
+      test     = "StringLike"
+      values   = ["repo:luciferous-public-lambda-layers/*"]
+      variable = "token.actions.githubusercontent.com:sub"
+    }
+  }
+}
+
+data "aws_iam_policy_document" "assume_role_cloud_formation" {
+  policy_id = "assume_role_policy_cloud_formation"
+  statement {
+    sid     = "AssumeRolePolicyCloudFormation"
+    effect  = local.iam.effect.allow
+    actions = ["sts:AssumeRole"]
+    principals {
+      identifiers = ["cloudformation.amazonaws.com"]
+      type        = "Service"
     }
   }
 }
@@ -126,6 +165,42 @@ resource "aws_iam_policy" "cognito_unauthenticated" {
 }
 
 # ================================================================
+# Policy Github Actions Publisher
+# ================================================================
+
+data "aws_iam_policy_document" "policy_github_actions_publisher" {
+  policy_id = "policy_github_actions_publisher"
+  statement {
+    sid    = "PolicyCloudFormation"
+    effect = local.iam.effect.allow
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:ListBucket",
+      "cloudformation:*",
+      "iam:PassRole",
+      "lambda:ListLayerVersions",
+      "lambda:ListLayers"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "PolicyDynamoDB"
+    effect = local.iam.effect.allow
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:UpdateItem"
+    ]
+    resources = [aws_dynamodb_table.layers.arn]
+  }
+}
+
+resource "aws_iam_policy" "github_actions_publisher" {
+  policy = data.aws_iam_policy_document.policy_github_actions_publisher.json
+}
+
+# ================================================================
 # Role Lambda Error Processor
 # ================================================================
 
@@ -188,4 +263,33 @@ resource "aws_iam_role_policy_attachment" "lambda_insert_history" {
   }
   policy_arn = each.value
   role       = aws_iam_role.lambda_insert_history.name
+}
+
+# ================================================================
+# Role Github Actions Publisher
+# ================================================================
+
+resource "aws_iam_role" "github_actions_publisher" {
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy_github.json
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_publisher" {
+  for_each = {
+    a = aws_iam_policy.github_actions_publisher.arn
+  }
+  policy_arn = each.value
+  role       = aws_iam_role.github_actions_publisher.name
+}
+
+# ================================================================
+# Role CloudFormation
+# ================================================================
+
+resource "aws_iam_role" "cloud_formation" {
+  assume_role_policy = data.aws_iam_policy_document.assume_role_cloud_formation.json
+}
+
+resource "aws_iam_role_policy_attachment" "cloud_formation" {
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+  role       = aws_iam_role.cloud_formation.name
 }
