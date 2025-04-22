@@ -172,7 +172,8 @@ data "aws_iam_policy_document" "policy_github_actions_publisher" {
       "cloudformation:*",
       "iam:PassRole",
       "lambda:ListLayerVersions",
-      "lambda:ListLayers"
+      "lambda:ListLayers",
+      "dynamodb:ListTables"
     ]
     resources = ["*"]
   }
