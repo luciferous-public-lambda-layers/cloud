@@ -173,7 +173,8 @@ data "aws_iam_policy_document" "policy_github_actions_publisher" {
       "iam:PassRole",
       "lambda:ListLayerVersions",
       "lambda:ListLayers",
-      "dynamodb:ListTables"
+      "dynamodb:ListTables",
+      "events:PutEvents"
     ]
     resources = ["*"]
   }

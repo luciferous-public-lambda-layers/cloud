@@ -31,3 +31,9 @@ resource "aws_ssm_parameter" "output_role_arn_cloudformation" {
   type  = "String"
   value = aws_iam_role.cloud_formation.arn
 }
+
+resource "aws_ssm_parameter" "output_name_event_bus" {
+  name  = "${var.prefix_output_ssm}/Publisher/NameEventBus"
+  type  = "String"
+  value = aws_cloudwatch_event_bus.slack_error_notifier.name
+}
