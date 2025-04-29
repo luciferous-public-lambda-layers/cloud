@@ -172,6 +172,7 @@ data "aws_iam_policy_document" "policy_github_actions_publisher" {
       "s3:ListAllMyBuckets",
       "s3:DeleteObject",
       "s3:DeleteBucket",
+      "s3:CreateBucket",
       "cloudformation:*",
       "iam:PassRole",
       "lambda:ListLayerVersions",
