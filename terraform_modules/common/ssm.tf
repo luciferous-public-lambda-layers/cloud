@@ -37,3 +37,9 @@ resource "aws_ssm_parameter" "output_name_event_bus" {
   type  = "String"
   value = aws_cloudwatch_event_bus.slack_error_notifier.name
 }
+
+resource "aws_ssm_parameter" "output_name_data_bucket" {
+  name  = "${var.prefix_output_ssm}/Data/Layers"
+  type  = "String"
+  value = aws_s3_bucket.layers_data.bucket
+}
