@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    random = {
+      source  = "hashicorp/random"
+      version = "3.6.3"
+    }
+  }
+}
 locals {
   iam = {
     effect = {
@@ -290,4 +298,20 @@ resource "aws_iam_role" "cloud_formation" {
 resource "aws_iam_role_policy_attachment" "cloud_formation" {
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
   role       = aws_iam_role.cloud_formation.name
+}
+
+# ================================================================
+# User Develop Public Web Page
+# ================================================================
+
+resource "aws_iam_user" "develop_public_web_page" {
+  name = "develop-public-web-page"
+}
+
+resource "aws_iam_user_policy_attachment" "develop_public_web_page" {
+  for_each = {
+    a = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  }
+  policy_arn = each.value
+  user       = aws_iam_user.develop_public_web_page.name
 }
