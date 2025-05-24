@@ -43,3 +43,9 @@ resource "aws_ssm_parameter" "output_name_data_bucket" {
   type  = "String"
   value = aws_s3_bucket.layers_data.bucket
 }
+
+resource "aws_ssm_parameter" "secret_github_token" {
+  name  = "/Secrets/GithubToken"
+  type  = "SecureString"
+  value = var.my_github_token
+}

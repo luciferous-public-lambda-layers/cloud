@@ -29,3 +29,9 @@ variable "slack_incoming_webhook_error_notifier_02" {
   nullable  = false
   sensitive = true
 }
+
+variable "my_github_token" {
+  type      = string
+  nullable  = false
+  sensitive = true
+}

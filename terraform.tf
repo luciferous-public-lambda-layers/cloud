@@ -82,3 +82,9 @@ variable "SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_02" {
   nullable  = false
   sensitive = true
 }
+
+variable "MY_GITHUB_TOKEN" {
+  type      = string
+  nullable  = false
+  sensitive = true
+}
