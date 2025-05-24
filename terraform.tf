@@ -49,6 +49,8 @@ module "common" {
 
   slack_incoming_webhook_error_notifier_01 = var.SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_01
   slack_incoming_webhook_error_notifier_02 = var.SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_02
+
+  my_github_token = var.MY_GITHUB_TOKEN
 }
 
 # ================================================================
