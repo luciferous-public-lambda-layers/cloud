@@ -1,3 +1,19 @@
+terraform {
+  required_providers {
+    random = {
+      source  = "hashicorp/random"
+      version = "3.6.3"
+    }
+  }
+}
+locals {
+  events = {
+    pipe_name = {
+      github_action_publishesr = "github-action-publisher-${random_uuid.github_action.result}"
+    }
+  }
+}
+
 # ================================================================
 # For Slack
 # ================================================================
@@ -43,3 +59,36 @@ module "slack_error_notifier_02" {
   iam_role_arn               = aws_iam_role.event_bridge_invoke_api_destination.arn
   connection_arn_slack_dummy = aws_cloudwatch_event_connection.slack_dummy.arn
 }
+
+# ================================================================
+# Github Action Dispatcher
+# ================================================================
+
+resource "aws_cloudwatch_event_connection" "github_action" {
+  authorization_type = "API_KEY"
+  name               = "github-action"
+
+  auth_parameters {
+    api_key {
+      key   = "Authorization"
+      value = "token ${var.my_github_token}"
+    }
+
+    invocation_http_parameters {
+      header {
+        key = "Accept"
+        value = "application/vnd.github.v3+json"
+        is_value_secret = false
+      }
+    }
+  }
+}
+
+resource "aws_cloudwatch_event_api_destination" "github_action" {
+  connection_arn      = aws_cloudwatch_event_connection.github_action.arn
+  http_method         = "POST"
+  invocation_endpoint = "https://api.github.com/repos/${var.repository_publisher}/actions/workflows/${var.workflow_file_publisher}/dispatches"
+  name                = "github_action"
+}
+
+resource "random_uuid" "github_action" {}

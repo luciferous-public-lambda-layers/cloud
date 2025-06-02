@@ -90,6 +90,29 @@ data "aws_iam_policy_document" "assume_role_cloud_formation" {
   }
 }
 
+data "aws_iam_policy_document" "assume_role_pipe_for_github_action_publisher" {
+  policy_id = "assume_role_pipe_for_github_action_publisher"
+  statement {
+    sid = "AssumeRolePipeForGithubActionPublisher"
+    effect = local.iam.effect.allow
+    actions = ["sts:AssumeRole"]
+    principals {
+      identifiers = ["pipes.amazonaws.com"]
+      type = "Service"
+    }
+    condition {
+      test = "StringEquals"
+      variable = "aws:SourceAccount"
+      values = [data.aws_caller_identity.current.account_id]
+    }
+    condition {
+      test     = "StringEquals"
+      values = [local.events.pipe_name.github_action_publishesr]
+      variable = "aws:SourceArn"
+    }
+  }
+}
+
 # ================================================================
 # Policy EventBridge Put Events
 # ================================================================
@@ -196,6 +219,42 @@ data "aws_iam_policy_document" "policy_github_actions_publisher" {
 
 resource "aws_iam_policy" "github_actions_publisher" {
   policy = data.aws_iam_policy_document.policy_github_actions_publisher.json
+}
+
+# ================================================================
+# Policy Github Actions Publisher
+# ================================================================
+
+data "aws_iam_policy_document" "github_actions_publisher" {
+  policy_id = "github_actions_publisher"
+  statement {
+    sid = "GithubActionsPublisherDynamodb"
+    effect = local.iam.effect.allow
+    actions = [
+      "dynamodb:DescribeStream",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:ListStreams"
+    ]
+    resources = [
+      aws_dynamodb_table.layers.stream_arn
+    ]
+  }
+
+  statement {
+    sid = "GithubActionsPublisherEventBridge"
+    effect = local.iam.effect.allow
+    actions = [
+      "events:InvokeApiDestination"
+    ]
+    resources = [
+      "${aws_cloudwatch_event_api_destination.github_action.arn}/*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "github_actions_publisher" {
+  policy = data.aws_iam_policy_document.github_actions_publisher.json
 }
 
 # ================================================================
@@ -306,4 +365,20 @@ resource "aws_iam_user_policy_attachment" "develop_public_web_page" {
   }
   policy_arn = each.value
   user       = aws_iam_user.develop_public_web_page.name
+}
+
+# ================================================================
+# Role Github Actions Publisher
+# ================================================================
+
+resource "aws_iam_role" "github_actions_publisher" {
+  assume_role_policy = data.aws_iam_policy_document.assume_role_pipe_for_github_action_publisher
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_publisher" {
+  for_each = {
+    a = aws_iam_policy.github_actions_publisher.arn
+  }
+  policy_arn = each.value
+  role       = aws_iam_role.github_actions_publisher.name
 }
