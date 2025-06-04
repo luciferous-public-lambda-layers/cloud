@@ -1,3 +1,13 @@
+locals {
+  events = {
+    name = {
+      pipe = {
+        github_actions_auto_publisher = "github-actions-auto-dispatcher_${random_string.pipe_github_actions_auto_dispatcher.result}"
+      }
+    }
+  }
+}
+
 # ================================================================
 # For Slack
 # ================================================================
@@ -89,4 +99,62 @@ resource "aws_cloudwatch_event_api_destination" "github_actions_auto_dispatcher"
   http_method         = "POST"
   invocation_endpoint = "https://api.github.com/repos/${var.repository_publisher}/actions/workflows/${var.workflow_file_publisher}/dispatches"
   name                = "github-actions-auto-dispatcher_${random_string.api_destination_github_actions_auto_dispatcher.result}"
+}
+
+resource "random_string" "pipe_github_actions_auto_dispatcher" {
+  length  = 33
+  lower   = true
+  upper   = true
+  numeric = true
+  special = false
+}
+
+resource "aws_pipes_pipe" "github_actions_auto_dispatcher" {
+  role_arn = aws_iam_role.github_actions_auto_dispatcher.arn
+  source   = aws_dynamodb_table.layers.stream_arn
+  target   = aws_cloudwatch_event_api_destination.github_actions_auto_dispatcher.arn
+  name     = local.events.name.pipe.github_actions_auto_publisher
+
+  source_parameters {
+    dynamodb_stream_parameters {
+      starting_position = "LATEST"
+      batch_size        = 1
+    }
+
+    filter_criteria {
+      filter {
+        pattern = jsonencode({
+          dynamodb = {
+            NewImage = {
+              stateLayer = {
+                S = [
+                  {
+                    equals-ignore-case = "QUEUED"
+                  }
+                ]
+              }
+            }
+          }
+        })
+      }
+    }
+  }
+
+  target_parameters {
+    input_template = <<EOT
+{
+  "ref": "master",
+  "inputs": {
+    "identifier": <$.dynamodb.Keys.identifier.S>
+  }
+}
+EOT
+  }
+
+  log_configuration {
+    level = "ERROR"
+    cloudwatch_logs_log_destination {
+      log_group_arn = aws_cloudwatch_log_group.github_actions_auto_dispatcher.arn
+    }
+  }
 }

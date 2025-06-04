@@ -233,12 +233,23 @@ data "aws_iam_policy_document" "github_actions_auto_dispatcher" {
   }
 
   statement {
-    sid    = "GithubActionsAutoDispatcher"
+    sid    = "GithubActionsAutoDispatcherEventBridge"
     effect = local.iam.effect.allow
     actions = [
       "events:InvokeApiDestination"
     ]
     resources = ["${aws_cloudwatch_event_api_destination.github_actions_auto_dispatcher.arn}/*"]
+  }
+
+  statement {
+    sid    = "GithubActionsAutoDispatcherCloudWatchLogs"
+    effect = local.iam.effect.allow
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
   }
 }
 
