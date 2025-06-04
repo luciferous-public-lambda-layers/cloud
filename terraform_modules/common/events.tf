@@ -76,11 +76,17 @@ resource "aws_cloudwatch_event_connection" "github_actions_auto_dispatcher" {
   }
 }
 
-resource "random_uuid" "api_destination_github_actions_auto_dispatcher" {}
+resource "random_string" "api_destination_github_actions_auto_dispatcher" {
+  length  = 33
+  lower   = true
+  upper   = true
+  numeric = true
+  special = false
+}
 
 resource "aws_cloudwatch_event_api_destination" "github_actions_auto_dispatcher" {
   connection_arn      = aws_cloudwatch_event_connection.github_actions_auto_dispatcher.arn
   http_method         = "POST"
   invocation_endpoint = "https://api.github.com/repos/${var.repository_publisher}/actions/workflows/${var.workflow_file_publisher}/dispatches"
-  name                = "github-actions-auto-dispatcher_${random_uuid.api_destination_github_actions_auto_dispatcher.result}"
+  name                = "github-actions-auto-dispatcher_${random_string.api_destination_github_actions_auto_dispatcher.result}"
 }
