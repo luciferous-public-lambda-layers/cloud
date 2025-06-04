@@ -43,3 +43,38 @@ module "slack_error_notifier_02" {
   iam_role_arn               = aws_iam_role.event_bridge_invoke_api_destination.arn
   connection_arn_slack_dummy = aws_cloudwatch_event_connection.slack_dummy.arn
 }
+
+# ================================================================
+# Github Actions Auto Dispatcher
+# ================================================================
+
+resource "random_uuid" "connection_github_actions_auto_dispatcher" {}
+
+resource "aws_cloudwatch_event_connection" "github_actions_auto_dispatcher" {
+  authorization_type = "API_KEY"
+  name               = "github-actions-auto-dispatcher_${random_uuid.connection_github_actions_auto_dispatcher.result}"
+
+  auth_parameters {
+    api_key {
+      key   = "Authorization"
+      value = "token ${var.my_github_token}"
+    }
+
+    invocation_http_parameters {
+      header {
+        key             = "Accept"
+        value           = "application/vnd.github.v3+json"
+        is_value_secret = false
+      }
+    }
+  }
+}
+
+resource "random_uuid" "api_destination_github_actions_auto_dispatcher" {}
+
+resource "aws_cloudwatch_event_api_destination" "github_actions_auto_dispatcher" {
+  connection_arn      = aws_cloudwatch_event_connection.github_actions_auto_dispatcher.arn
+  http_method         = "POST"
+  invocation_endpoint = "https://api.github.com/repos/${var.repository_publisher}/actions/workflows/${var.workflow_file_publisher}/dispatches"
+  name                = "github-actions-auto-dispatcher_${random_uuid.api_destination_github_actions_auto_dispatcher.result}"
+}

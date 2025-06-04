@@ -51,6 +51,9 @@ module "common" {
   slack_incoming_webhook_error_notifier_02 = var.SLACK_INCOMING_WEBHOOK_ERROR_NOTIFIER_02
 
   my_github_token = var.MY_GITHUB_TOKEN
+
+  repository_publisher    = var.REPOSITORY_PUBLISHER
+  workflow_file_publisher = var.WORKFLOW_FILE_PUBLISHER
 }
 
 # ================================================================
@@ -89,4 +92,18 @@ variable "MY_GITHUB_TOKEN" {
   type      = string
   nullable  = false
   sensitive = true
+}
+
+variable "REPOSITORY_PUBLISHER" {
+  type      = string
+  nullable  = false
+  sensitive = false
+  default   = "luciferous-public-lambda-layers/layer-publisher"
+}
+
+variable "WORKFLOW_FILE_PUBLISHER" {
+  type      = string
+  nullable  = false
+  sensitive = false
+  default   = "publish.yml"
 }

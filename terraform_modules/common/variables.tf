@@ -35,3 +35,15 @@ variable "my_github_token" {
   nullable  = false
   sensitive = true
 }
+
+variable "repository_publisher" {
+  type      = string
+  nullable  = false
+  sensitive = false
+}
+
+variable "workflow_file_publisher" {
+  type      = string
+  nullable  = false
+  sensitive = false
+}

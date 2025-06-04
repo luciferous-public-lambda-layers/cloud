@@ -90,6 +90,19 @@ data "aws_iam_policy_document" "assume_role_cloud_formation" {
   }
 }
 
+data "aws_iam_policy_document" "assume_role_pipes" {
+  policy_id = "assume_role_pipes"
+  statement {
+    sid     = "AssumeRolePipes"
+    effect  = local.iam.effect.allow
+    actions = ["sts:AssumeRole"]
+    principals {
+      identifiers = ["pipes.amazonaws.com"]
+      type        = "Service"
+    }
+  }
+}
+
 # ================================================================
 # Policy EventBridge Put Events
 # ================================================================
@@ -196,6 +209,42 @@ data "aws_iam_policy_document" "policy_github_actions_publisher" {
 
 resource "aws_iam_policy" "github_actions_publisher" {
   policy = data.aws_iam_policy_document.policy_github_actions_publisher.json
+}
+
+# ================================================================
+# Policy Github Action Auto Dispatcher
+# ================================================================
+
+data "aws_iam_policy_document" "github_actions_auto_dispatcher" {
+  policy_id = "github_actions_auto_dispatcher"
+
+  statement {
+    sid    = "GithubActionsAutoDispatcherDynamoDbStream"
+    effect = local.iam.effect.allow
+    actions = [
+      "dynamodb:DescribeStream",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:ListStreams"
+    ]
+    resources = [
+      aws_dynamodb_table.layers.stream_arn
+    ]
+  }
+
+  statement {
+    sid    = "GithubActionsAutoDispatcher"
+    effect = local.iam.effect.allow
+    actions = [
+      "events:InvokeApiDestination"
+    ]
+    resources = ["${aws_cloudwatch_event_api_destination.github_actions_auto_dispatcher.arn}/*"]
+  }
+}
+
+resource "aws_iam_policy" "github_actions_auto_dispatcher" {
+  policy      = data.aws_iam_policy_document.github_actions_auto_dispatcher.json
+  name_prefix = "github-actions-auto-dispatcher_"
 }
 
 # ================================================================
@@ -306,4 +355,21 @@ resource "aws_iam_user_policy_attachment" "develop_public_web_page" {
   }
   policy_arn = each.value
   user       = aws_iam_user.develop_public_web_page.name
+}
+
+# ================================================================
+# Role Github Actions Auto Dispatcher
+# ================================================================
+
+resource "aws_iam_role" "github_actions_auto_dispatcher" {
+  assume_role_policy = data.aws_iam_policy_document.assume_role_pipes.json
+  name_prefix        = "github-actions-auto-dispatcher_"
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_auto_dispatcher" {
+  for_each = {
+    a = aws_iam_policy.github_actions_auto_dispatcher.arn
+  }
+  policy_arn = each.value
+  role       = aws_iam_role.github_actions_auto_dispatcher.name
 }
