@@ -238,7 +238,9 @@ data "aws_iam_policy_document" "github_actions_auto_dispatcher" {
     actions = [
       "events:InvokeApiDestination"
     ]
-    resources = ["${aws_cloudwatch_event_api_destination.github_actions_auto_dispatcher.arn}/*"]
+    resources = [
+      "arn:aws:events:${var.region}:${data.aws_caller_identity.current.account_id}:api-destination/${aws_cloudwatch_event_api_destination.github_actions_auto_dispatcher.name}/*"
+    ]
   }
 
   statement {
