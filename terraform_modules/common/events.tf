@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    random = {
+      source  = "hashicorp/random"
+      version = "3.6.3"
+    }
+  }
+}
 # ================================================================
 # For Slack
 # ================================================================
@@ -48,11 +56,17 @@ module "slack_error_notifier_02" {
 # Github Actions Auto Dispatcher
 # ================================================================
 
-resource "random_uuid" "connection_github_actions_auto_dispatcher" {}
+resource "random_string" "connection_github_actions_auto_dispatcher" {
+  length  = 33
+  lower   = true
+  upper   = true
+  numeric = true
+  special = false
+}
 
 resource "aws_cloudwatch_event_connection" "github_actions_auto_dispatcher" {
   authorization_type = "API_KEY"
-  name               = "github-actions-auto-dispatcher_${random_uuid.connection_github_actions_auto_dispatcher.result}"
+  name               = "github-actions-auto-dispatcher_${random_string.connection_github_actions_auto_dispatcher.result}"
 
   auth_parameters {
     api_key {
